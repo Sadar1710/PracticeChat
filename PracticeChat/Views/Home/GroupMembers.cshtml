@@ -1,0 +1,65 @@
+﻿
+@model List<PracticeChat.ViewModels.AddNewGroupMemberVM>
+@{
+    ViewData["Title"] = "GroupMembers";
+}
+
+<h3 class="text-center">All members of @Model[0].GroupName</h3>
+<div class="card" style="width:70%;margin-left: 50%;transform: translateX(-50%);
+                     box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);">
+    <div class="card-body">
+        <input type="hidden">
+        <table class="table" id="tbl">
+            <thead>
+                <tr>
+                    <th>Friend List</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var photo = "~/img/" + (@Model[i].PhotoPath ?? "avatar-1.png");
+                    <tr>
+                        <td>
+                            <img src="@photo" asp-append-version="true" class="rounded-circle" width="30" height="30">
+                            <span id="aaa">&nbsp;&nbsp; @Model[i].UserName</span>
+                        </td>
+                        <td>
+                            <a onclick="MyDeleteConfirm()" asp-action="RemoveFriend" asp-controller="Home"
+                               asp-route-Friendid="@Model[i].UserId" asp-route-Groupid="@Model[0].GroupId">
+                                Remove
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script type="text/javascript">
+        function MyDeleteConfirm() {
+            event.preventDefault();
+            var anchor = event.target.closest("a");     // Find closest Anchor (or self)
+            console.log(anchor.getAttribute('href'));
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Remove!',
+
+            }).then((result) => {
+                if (result.value) {
+                    window.location.href = anchor.getAttribute('href');
+                }
+            })
+        }
+
+    </script>
+}

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PracticeChat", "PracticeChat\PracticeChat.csproj", "{DEDD5100-5A6F-41BC-965E-8BDCA63BAF7C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DEDD5100-5A6F-41BC-965E-8BDCA63BAF7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DEDD5100-5A6F-41BC-965E-8BDCA63BAF7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DEDD5100-5A6F-41BC-965E-8BDCA63BAF7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DEDD5100-5A6F-41BC-965E-8BDCA63BAF7C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB16E89C-F520-4490-8608-C72F21BF1E96}
+	EndGlobalSection
+EndGlobal

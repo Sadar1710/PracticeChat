@@ -1,0 +1,94 @@
+﻿
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@model PracticeChat.ViewModels.CreateGroupVM
+
+@{
+    ViewData["Title"] = "CreateGroup";
+}
+
+<h3 class="text-center">Create Group</h3>
+<div class="card" style="width:70%;margin-left: 50%;transform: translateX(-50%);
+                     box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);">
+    <div class="card-body">
+        <form enctype="multipart/form-data" class="forms-sample" asp-controller="Home" asp-action="CreateGroup" method="post">
+            <input type="hidden">
+            <div class="form-group">
+                <label>Enter Name</label>
+                <input asp-for="GroupName" class="form-control" placeholder="Enter Group Name...">
+                @if (ViewBag.Validation != null)
+                {
+                    <span class="text-danger">
+                        @ViewBag.Validation
+                    </span>
+                }
+                else
+                {
+                    <span asp-validation-for="GroupName" class="text-danger"></span>
+                }
+                <input type="hidden" id="getId" value="@UserManager.GetUserId(User)" asp-for="UserId[0]">
+            </div>
+            <table class="table" id="tbl">
+                <thead>
+                    <tr>
+                        <th>Friend List</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+                <tbody id="List">
+                </tbody>
+            </table>
+            <button id="btn" type="submit" class="btn btn-primary btn-block">Create</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var con = 0;
+            var url1 = "/Home/FindFriends";
+            $.getJSON(url1, function (data) {
+                $.each(data, function (i, item) {
+                    var items = "";
+                    con++;
+                    items += '<tr>';
+                    if (item.photoPath != null) {
+                        items += '<td><img class="rounded-circle" src="/img/' + item.photoPath + '"asp-append-version="true" height="30px" width="30px"><span>' + '&nbsp;&nbsp' + item.userName + '</span></td>';
+                    }
+                    else {
+                        items += '<td><img class="rounded-circle" src="/img/avatar-1.png" asp-append-version="true" height="30px" width="30px"><span>' + '&nbsp;&nbsp' + item.userName + '</span></td>';
+                    }
+                    items += '<td>';
+                    items += '<input name="UserId[' + con + ']" id="aa" type="checkbox" class="form-check-input" value="' + item.userId + '">';
+                    items += '</td>';
+                    items += '</tr>';
+                    $("#List").append(items);
+                });
+            });
+            var a = $("#aa").length;
+            console.log(a);
+        });
+
+        $("#btn").click(function (event) {
+            var a = $("#tbl :input[type='checkbox']:checked").length;
+            if (a < 1) {
+                Swal.fire({
+                    position: 'top-center',
+                    icon: 'warning',
+                    title: "Please select at least one friend.",
+                    showConfirmButton: false,
+                    timer: 2000
+                })
+                event.preventDefault();
+            }
+            console.log(a);
+        });
+    </script>
+
+}

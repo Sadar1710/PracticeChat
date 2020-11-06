@@ -1,0 +1,48 @@
+﻿
+@model PracticeChat.ViewModels.Login
+
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PracticeChat</title>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/Assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="~/Assets/css/all.css">
+        <link rel="stylesheet" href="~/Assets/css/style.css">
+    </environment>
+</head>
+<body>
+    <div class="container">
+        <div class="container-fluid" style="padding-top:50px;padding-bottom:50px;position:relative;">
+            <h3 class="text-center">Log in</h3>
+            <div class="card" style="width:60%;margin-left: 50%;transform: translateX(-50%);
+                                box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);">
+                <div class="card-body">
+                    <form asp-controller="Home" asp-action="Index" method="post">
+                        <div class="form-group">
+                            <input asp-for="Email" class="form-control form-control-sm" type="text" id="name" placeholder="Enter email">
+                            <span asp-validation-for="Email" class="text-danger">@ViewBag.wrong</span>
+                        </div>
+                        <div class="form-group">
+                            <input asp-for="Password" class="form-control" type="password" id="password" placeholder="Password">
+                            <span asp-validation-for="Password" class="text-danger">@ViewBag.pass</span>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+
+                    </form>
+                    <br>
+                    <form>
+                        <button asp-controller="Home" asp-action="SignUp" type="submit" class="btn btn-primary btn-block">Sing Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

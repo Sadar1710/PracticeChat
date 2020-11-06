@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewData["Title"] = "GroupChatUI";
+}
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@model PracticeChat.ViewModels.GroupChatVM
+@{
+    ViewData["Title"] = "ChatUI";
+    var photo = "~/img/avatar-1.png";
+}
+<div class="container-fluid">
+    <div class="container-fluid" style="padding-top:10px;padding-bottom:10px;position:relative;">
+        <div class="card" style="background-color: white;width: 100%;min-height:550px;max-height:550px;overflow-y:scroll;
+                         box-shadow: 0 2px 3px 0 rgba(0,0,0,0.2),0 2px 3px 0 rgba(0,0,0,0.4);">
+            <div class="card-header" style="background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);">
+                <a href="#" class="nav-link">
+                    <img src="@photo" asp-append-version="true" class="rounded-circle" width="40" height="40">
+                    &nbsp;&nbsp;
+                    <span style="color:white;font-size:large;">@Model.GroupName</span>
+                </a>               
+                <a asp-action="GroupMembers" asp-controller="Home" asp-route-Groupid="@Model.Groupid" class="btn btn-primary mr-auto">Members</a>
+                <a asp-action="AddNewGroupMember" asp-controller="Home" asp-route-Groupid="@Model.Groupid" class="btn btn-primary ml-auto">Add</a>
+            </div>
+            <div class="card-body">
+                <form asp-controller="Home" asp-action="SendGroupMessage" id="messageForm" data-ajax="true" data-ajax-method="POST">
+                    <div class="input-group mb-1 mt-auto" style="float:unset;">
+                        <input id="SendMessageText" asp-for="Message" type="text" class="form-control" placeholder="Write your message">
+                        <input type="hidden" asp-for="Groupid" id="getGroupId" value="@Model.Groupid">
+                        <input type="hidden" id="getGroupName" value="@Model.GroupName">
+                        <input type="hidden" id="geCurrentUserName" value="@User.Identity.Name">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <input type="submit" id="SendMessageButton" value="Send">
+                            </span>
+                        </div>
+                    </div>
+                    <span></span>
+                </form>
+                <div class="row">
+                    <div class="col-sm-11 col-md-9 col-lg-7">
+                        <ul id="messagesList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/Assets/AJAX/jquery-unobtrusive-ajax.min.js"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script type="text/javascript">
+        "use strict";
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        $(document).ready(function () {
+
+            $('#SendMessageButton').prop('disabled', true);
+            $('#SendMessageText').keyup(function () {
+                $('#SendMessageButton').prop('disabled', this.value == "" ? true : false);
+            });;
+
+            var groupid = $("#getGroupId").val();
+           // var UID="@UserManager.GetUserId(User)"
+             var url2 = "/Home/GetGroupMessage";
+                $.getJSON(url2,{ GroupId:groupid  }, function (data) {
+                    $.each(data, function (i, item) {
+                        console.log(item);
+                        var items = "";
+                            items += '<li style="border-radius:8px;background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);color:white;font-style:normal;padding:0px 5px;">' + item.userName + ' : ' + item.message + '<p style="text-align:right;">' + item.dateTime + "&nbsp;&nbsp;" + '</p></li>';
+                            $("#messagesList").append(items);
+                    });
+                });
+
+
+            connection.on("ReceiveMessage", function (group, Sender, message) {
+                console.log(group);
+                var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                var d = new Date($.now());
+                var dates = d.getDate();
+                //var month = d.getMonth();
+                var hours = d.getHours();
+                var min = d.getMinutes();
+                var AmOrPm = hours >= 12 ? 'PM' : 'AM';
+                hours = (hours % 12) || 12;
+                if (dates < 10) {
+                    dates = '0' + dates;
+                }
+                if (hours < 10) {
+                    hours = '0' + hours;
+                }
+                if (min < 10) {
+                    min = '0' + min;
+                }
+                var date = dates + "-" + (d.getMonth() + 1) + "-" + d.getFullYear() + "  " + hours + ":" + min + " " + AmOrPm;
+                var encodedMsg = msg;
+                var groupName = $("#getGroupName").val();
+                if (groupName == group) {
+                    var items = "";
+                    items += '<li style="border-radius:8px;background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);color:white;font-style:normal;padding:0px 5px;">' + Sender + ' : ' + encodedMsg + '<p style="text-align:right;">' + date + "&nbsp;&nbsp;" + '</p></li>';
+                    $("#messagesList").prepend(items);
+                }
+            });
+
+            connection.start().then(function () {
+                var groupName = $("#getGroupName").val();
+            console.log(groupName);
+            connection.invoke("JoinGroup", groupName).catch(function (err) {
+                return console.error(err.toString());
+            });
+            }).catch(function (err) {
+                return console.error(err.toString());
+            });
+
+            $("#SendMessageButton").click(function (event) {
+
+                $("#messageForm").submit();
+                var message = document.getElementById("SendMessageText").value;
+                var group = $("#getGroupName").val();
+                console.log(message);
+                var Sender = $("#geCurrentUserName").val();
+                connection.invoke("SendMessageToGroups", group, Sender, message).catch(function (err) {
+                    return console.error(err.toString());
+                });
+                $('#SendMessageText').val("");
+                $('#SendMessageButton').prop('disabled', true);
+                event.preventDefault();
+            });
+        });
+    </script>
+}
+

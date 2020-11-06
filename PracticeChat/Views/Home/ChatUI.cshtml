@@ -1,0 +1,169 @@
+﻿
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@model PracticeChat.ViewModels.OneToOneVM
+
+@{
+    ViewData["Title"] = "ChatUI";
+    var photo = "~/img/" + (Model.PhotoPath ?? "avatar-1.png");
+}
+<div class="container-fluid">
+    <div class="container-fluid" style="padding-top:10px;padding-bottom:10px;position:relative;">
+        <div class="card" style="background-color: white;width: 100%;min-height:550px;max-height:550px;overflow-y:scroll;
+                         box-shadow: 0 2px 3px 0 rgba(0,0,0,0.2),0 2px 3px 0 rgba(0,0,0,0.4);">
+            <div class="card-header" style="background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);">
+                <a asp-controller="Home" asp-action="FriendProfile" asp-route-FriendId="@Model.FriendId" class="nav-link">
+                    <img src="@photo" asp-append-version="true" class="rounded-circle" width="40" height="40">
+                    &nbsp;&nbsp;
+                    <span style="color:white;font-size:large;">@Model.FriendUserName</span>
+                </a>
+            </div>
+            <div class="card-body">
+                <form asp-controller="Home" asp-action="OneToOneChat" id="messageForm" data-ajax="true" data-ajax-method="POST">
+                    <div class="input-group mb-1 mt-auto" style="float:unset;">
+                        <input id="SendMessageText" asp-for="Message" type="text" class="form-control" placeholder="Write your message">
+                        <input type="hidden" id="getId" value="@Model.FriendId" asp-for="FriendId">
+                        <input type="hidden" id="getName" value="@User.Identity.Name">
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <input type="button" id="SendMessageButton" value="Send">
+                            </span>
+                        </div>
+                    </div>
+                    <span asp-validation-for="Message"></span>
+                </form>
+                <div class="row">
+                    <div class="col-sm-11 col-md-9 col-lg-7">
+                        <ul id="messagesList"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/Assets/AJAX/jquery-unobtrusive-ajax.min.js"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#SendMessageButton').prop('disabled', true);
+            $('#SendMessageText').keyup(function () {
+                $('#SendMessageButton').prop('disabled', this.value == "" ? true : false);
+            })
+            var friendId = $("#getId").val();
+            var UID="@UserManager.GetUserId(User)"
+             var url1 = "/Home/GetPrivateMessage";
+                $.getJSON(url1,{ FriendId:friendId  }, function (data) {
+                    $.each(data, function (i, item) {
+                        var items = "";
+                        console.log(item);
+                        if (item.senderId == UID) {
+                            items += '<li style="border-radius:8px;background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);color:white;font-style:normal;padding:0px 5px;">' + item.senderName + ' : ' + item.message + '<p style="text-align:right;">' + item.dateTime + "&nbsp;&nbsp;" + '</p></li>';
+                            $("#messagesList").append(items);
+                        }
+                        else if (item.senderId == friendId) {
+                             items += '<li style="border-radius:8px;background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);color:white;font-style:normal;padding:0px 5px;">' + item.senderName + ' : ' + item.message + '<p style="text-align:right;">' + item.dateTime + "&nbsp;&nbsp;" + '</p></li>';
+                            $("#messagesList").append(items);
+                        }
+                    });
+                });
+
+        });
+
+        "use strict";
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        var a = $("#getId").val();
+        var UID="@UserManager.GetUserId(User)"
+        connection.on("ReceiveMessage", function (sender,receiverId, message) {
+            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            var d = new Date($.now());
+            var dates = d.getDate();
+            //var month = d.getMonth();
+            var hours = d.getHours();
+            var min = d.getMinutes();
+            var AmOrPm = hours >= 12 ? 'PM' : 'AM';
+            hours = (hours % 12) || 12;
+            if (dates < 10) {
+                dates = '0' + dates;
+            }
+            //if (month < 10) {
+            //    month = '0' + month;
+            //}
+            if (hours < 10) {
+                hours = '0' + hours;
+            }
+            if (min < 10) {
+                min = '0' + min;
+            }
+            var date = dates + "-" + (d.getMonth() + 1) + "-" + d.getFullYear() + "  " + hours + ":" + min+" "+AmOrPm;
+            var encodedMsg = msg;
+
+            var items = "";
+            items += '<li style="border-radius:8px;background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);color:white;font-style:normal;padding:0px 5px;">' + sender + ' : ' + encodedMsg + '<p style="text-align:right;">' + date + "&nbsp;&nbsp;" + '</p></li>';
+            //$("#messagesList").prepend(items);
+            if (receiverId == a) {
+               $("#messagesList").prepend(items);
+            }
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        $("#SendMessageButton").click(function (event) {
+            $("#messageForm").submit();
+
+            //alert("sfsdfsdfsdf");
+            var message = document.getElementById("SendMessageText").value;
+
+            var msg = message.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            var d = new Date($.now());
+            var dates = d.getDate();
+            //var month = d.getMonth();
+            var hours = d.getHours();
+            var min = d.getMinutes();
+            var AmOrPm = hours >= 12 ? 'PM' : 'AM';
+            hours = (hours % 12) || 12;
+            if (dates < 10) {
+                dates = '0' + dates;
+            }
+            //if (month < 10) {
+            //    month = '0' + month;
+            //}
+            if (hours < 10) {
+                hours = '0' + hours;
+            }
+            if (min < 10) {
+                min = '0' + min;
+            }
+            var date = dates + "-" + (d.getMonth() + 1) + "-" + d.getFullYear() + "  " + hours + ":" + min+" "+AmOrPm;
+            var encodedMsg = msg;
+           var name = $("#getName").val();
+            var items = "";
+            items += '<li style="border-radius:8px;background: linear-gradient(to left, #0099ff 0%, #3333cc 100%);color:white;font-style:normal;padding:0px 5px;">'+ name +' : '+ encodedMsg + '<p style="text-align:right;">' + date + "&nbsp;&nbsp;" + '</p></li>';
+            $("#messagesList").prepend(items);
+
+            console.log(message);
+            var url = "/Home/SendMessageConnetion";
+            $.getJSON(url, { FriendId: a }, function (data) {
+                if (data != null) {
+                    console.log("User Connected");
+                    $.each(data, function (i, item) {
+                        console.log(item);
+                        connection.invoke("SendMessageToUser", item.friendConnectionId,item.id, message).catch(function (err) {
+                            return console.error(err.toString());
+                        });
+                    });
+                }
+            });
+            $('#SendMessageText').val("");
+            $('#SendMessageButton').prop('disabled', true);
+            event.preventDefault();
+        });
+    </script>
+}
+

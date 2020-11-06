@@ -1,0 +1,263 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PracticeChat</title>
+    <environment include="Development">
+        <link rel="stylesheet" href="~/Assets/css/bootstrap.min.css">
+        <link rel="stylesheet" href="~/Assets/css/all.css">
+        <link rel="stylesheet" href="~/Assets/css/style.css">              
+        
+    </environment>
+</head>
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Http
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<body>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        //var photo = "~/img/" + (imagepath ?? "avatar-1.png");
+        <div id="app">
+            <div class="main-wrapper">
+                <div class="navbar-bg" style="height: 73px;background-color:#000000;"></div>
+                <nav class="navbar navbar-expand-lg main-navbar">
+                    <form class="form-inline mr-auto">
+                        <ul class="navbar-nav mr-3">
+                            <li>
+                                <a href="#" data-toggle="sidebar" class="nav-link nav-link-lg">
+                                    <i class="fas fa-bars"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </form>
+                    <form asp-controller="Home" asp-action="SearchList" method="post" class="navbar-nav navbar-right mr-auto" style="width:50%;">
+
+                        <input type="text" id="phoneNumber" class="form-control" placeholder="Search...">
+                        &nbsp;
+                        <button id="btnGet" class="btn btn-outline-primary" type="button">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </form>
+                </nav>
+                <div class="main-sidebar" style="box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);">
+                    <aside id="sidebar-wrapper">
+                        <div class="sidebar-brand">
+                            <a asp-controller="Home" asp-action="UserDashboard">Chat App</a>
+                        </div>
+                        <div class="sidebar-brand sidebar-brand-sm">
+                            <a href="#">CA</a>
+                        </div>
+                        <ul class="sidebar-menu" id="FriendList">
+                            <li class="menu-header">My Profile</li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link has-dropdown">
+                                    <img id="image" src="" asp-append-version="true" class="rounded-circle" width="35" height="35">
+                                    &nbsp;&nbsp;
+                                    <span>@User.Identity.Name</span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="nav-link" asp-action="ViewProfile" asp-controller="Home">View Profile</a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" asp-controller="Home" asp-action="CreateGroup">Create Group</a>
+                                    </li>
+                                    <li>
+                                        <a class="nav-link" asp-controller="Home" asp-action="Logout">Logout</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link has-dropdown">
+                                    <img id="image" src="~/img/avatar-1.png" asp-append-version="true" class="rounded-circle" width="40" height="40">
+                                    &nbsp;&nbsp;
+                                    <span>Group List</span>
+                                </a>
+                                <ul id="GroupList" class="dropdown-menu">
+                                   
+                                </ul>
+                            </li>
+                            <li class="menu-header">Friend List</li>
+                            @*<li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="FindFriends">
+                                        <img src="~/img/avatar-1.png" class="rounded-circle" width="30" height="30">
+                                        &nbsp;&nbsp;
+                                        <span>Omar</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="ChatUI">
+                                        <img src="~/img/avatar-1.png" class="rounded-circle" width="30" height="30">
+                                        &nbsp;&nbsp;
+                                        <span>Erin</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Home" asp-action="ChatUI">
+                                        <img src="~/img/avatar-1.png" class="rounded-circle" width="30" height="30">
+                                        &nbsp;&nbsp;
+                                        <span>sdfsdf</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item ">
+                                    <a class="nav-link" asp-controller="Home" asp-action="ChatUI">
+                                        <img src="~/img/avatar-1.png" class="rounded-circle" width="30" height="30">
+                                        &nbsp;&nbsp;
+                                        <span>sdfsfdsf</span>
+                                    </a>
+                                </li>*@
+                        </ul>
+                    </aside>
+                </div>
+                <!-- Main Content -->
+                <div class="main-content">
+                    <section class="section" id="mainContent">
+                        @RenderBody()
+                    </section>
+                </div>
+            </div>
+        </div>
+    }
+<environment include="Development">
+    <script src="~/Assets/AJAX/ajaxjQueryjquery1.11.3.min.js"></script>
+    <script src="~/Assets/AJAX/ajaxjqueryvalidate1.14.0jquery.validate.min.js"></script>
+    <script src="~/Assets/AJAX/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/Assets/js/jQuery.min.js"></script>
+    <script src="~/Assets/js/bootstrap.min.js"></script>
+    <script src="~/Assets/js/NiceScroll.min.js"></script>
+    <script type="text/javascript" src="~/Assets/SweetAlert/sweetalert2.all.min.js"></script>
+    <script src="~/Assets/js/scripts.js"></script>  
+    @*<script src="~/lib/signalr/dist/browser/signalr.js"></script>*@
+    
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+        //     "use strict";
+        //var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+        //connection.start().catch(function (err) {
+        //    return console.error(err.toString());
+        //});
+
+                var url = "/Home/GetUser";
+                var UID="@UserManager.GetUserId(User)"
+                $.getJSON(url, { uid: UID }, function (data) {
+                    if (data != null) {
+                        $("#image").attr("src", "/img/" + data);
+                    }
+                    else {
+                        $("#image").attr("src", "/img/avatar-1.png");
+                    }
+                    //console.log(data);
+                });
+                var url1 = "/Home/FindFriends";
+                $.getJSON(url1, function (data) {
+                    $.each(data, function (i, item) {
+                        var items = "";
+                        items += '<li class="nav-item ">';
+                        items += '<a class="nav-link" href="/Home/ChatUI?FriendId=' + item.userId + '">';
+                        if (item.photoPath != null) {
+                                    items += '<img class="rounded-circle" src="/img/' + item.photoPath + '"asp-append-version="true" height="30px" width="30px">';
+                                }
+                                else {//data-id=' + item.userName + '
+                                    items += '<img class="rounded-circle" src="/img/avatar-1.png" asp-append-version="true" height="30px" width="30px">';
+                                }
+                        items += '&nbsp;&nbsp';
+                        items += '<span>' + item.userName + '</span>';
+                        items += '</a>';
+                        items += '</li>';
+                        $("#FriendList").append(items);
+                        
+                    });
+                });       
+            var url1 = "/Home/MyGroup";
+                $.getJSON(url1, function (data) {
+                    $.each(data, function (i, item) {
+                        var items = "";
+                        items += '<li class="nav-item ">';
+                        items += '<a class="nav-link" href="/Home/GroupChatUI?GroupId=' + item.groupid + '">';                       
+                        items += '<img class="rounded-circle" src="/img/avatar-1.png" asp-append-version="true" height="30px" width="30px">';
+                        items += '&nbsp;&nbsp';
+                        items += '<span>' + item.groupName + '</span>';
+                        items += '</a>';
+                        items += '</li>';
+                        $("#GroupList").append(items);
+                        
+                    });
+                });              
+            });
+    </script>
+    <script type="text/javascript">
+
+                $("#btnGet").click(function () {
+                    var a = $("#phoneNumber").val();
+                    if (a.length != 0) {
+                        var url = '@Url.Action("SearchList", "Home")';
+                        //var data = { number: a};
+                        $.getJSON(url, { number: a }, function (data) {
+                            // var photo="~/img/" + (data.photoPath ?? "avatar-1.png");
+                            //console.log(data.userId);
+
+                            if (data != null)
+                            {
+                                var x = data.photoPath;
+                                var items = "";
+                                items += '<div class="row mt-5"><div class="col-12 col-sm-12 col-md-10 offset-md-1 col-lg-10 col-xl-10 offset-xl-1" id="cols"style="box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);">';
+                                items += '<h1 class="text-center">Search List</h1>';
+                                items += '<table class="table">';
+                                items += '<thead>';
+                                items += '<tr>';
+                                items += '<th>UserName</th>';
+                                items += '<th>Action</th>';
+                                items += '</tr>';
+                                items += '</thead>';
+                                items += '<tbody>';
+                                items += '<tr>';
+                                if (x.length>1) {
+                                    items += '<td><img class="rounded-circle" src="/img/' + data.photoPath + '"asp-append-version="true" height="30px" width="30px">' + data.userName + '</td>';
+                                }
+                                else {
+                                    items += '<td><img class="rounded-circle" src="/img/avatar-1.png" asp-append-version="true" height="30px" width="30px">' + data.userName + '</td>';
+                                }
+                                items += '<td>';
+                                items += '<a href="/Home/AddFriend?Id=' + data.userId + '" class="btn btn-outline-primary">Add to friendlist</a>';
+                                items += '</td>';
+                                items += '</tr>';
+                                items += '</tbody>';
+                                items += '</table>';
+                                items += '</div>';
+                                items += '</div>';
+                                $("#mainContent").html(items);
+                            }
+                            else
+                            {
+                                Swal.fire({
+                                    position: 'top-center',
+                                    icon: 'warning',
+                                    title: "User Not found",
+                                    showConfirmButton: false,
+                                    timer: 2000
+                                })
+                            }
+                        });
+                    }
+                    else {
+                        Swal.fire({
+                            position: 'top-center',
+                            icon: 'warning',
+                            title: "Write Something",
+                            showConfirmButton: false,
+                            timer: 2000
+                        })
+                    }
+                });
+    </script>
+</environment>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
+

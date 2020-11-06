@@ -1,0 +1,84 @@
+﻿@model List<PracticeChat.ViewModels.AddNewGroupMemberVM>
+@{
+    ViewData["Title"] = "AddNewGroupMember";
+}
+
+<h3 class="text-center">Add New Member to @Model[0].GroupName</h3>
+<div class="card" style="width:70%;margin-left: 50%;transform: translateX(-50%);
+                     box-shadow: 0 4px 6px 0 rgba(0,0,0,0.2),0 5px 6px 0 rgba(0,0,0,0.4);">
+    <div class="card-body">
+        <input type="hidden">
+        <table class="table" id="tbl">
+            <thead>
+                <tr>
+                    <th>Friend List</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    var photo = "~/img/" + (@Model[i].PhotoPath ?? "avatar-1.png");
+                    <tr>
+                        <td>
+                            <img src="@photo" asp-append-version="true" class="rounded-circle" width="30" height="30">
+                            <span id="aaa">&nbsp;&nbsp; @Model[i].UserName</span>
+                        </td>
+                        <td>
+                            <input type="hidden" id="getGroupName" value="@Model[0].GroupName">
+                            <input type="hidden" id="getGroupId" value="@Model[0].GroupId">
+                            <input type="hidden" id="getUserId" value="@Model[i].UserId">
+                            <a class="btn btn-primary" id="button" style="color:white;">
+                                Add
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script type="text/javascript">
+        var a = null;
+        var b = null;
+        $(document).ready(function () {
+            //$("tbody tr #getUserId").each(function () {
+            //    var a = $(this).val();
+            //    console.log(a);
+            //});
+            $("table #button").click(function () {
+                var a = $(this).closest("tr").find("#getGroupId").val();
+                var b = $(this).closest("tr").find("#getUserId").val();
+                console.log(a);
+                console.log(b);
+                var url = "/Home/AddNewMember";
+                $.getJSON(url, { GroupId: a, UserId: b }, function (data) {
+                    console.log(data);
+                    if (data == false) {
+                        Swal.fire({
+                            position: 'top-center',
+                            icon: 'warning',
+                            title: "Already member of this Group.",
+                            showConfirmButton: false,
+                            timer: 2000
+                        })
+                    }
+                    else {
+                        Swal.fire({
+                     position: 'top-center',
+                     icon: 'success',
+                     title: "Succesfully Added.",
+                     showConfirmButton: false,
+                     timer: 2000
+                 })
+                    }
+                });
+            });
+        });
+
+    </script>
+}
+

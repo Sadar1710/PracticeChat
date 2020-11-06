@@ -1,0 +1,37 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
+@{
+	ViewData["Title"] = "UserDashboard";
+}
+
+<h1>UserDashboard</h1>
+<ul>
+	@foreach (var item in ViewBag.sdfsdfsdf)
+	{
+		<li>
+			@item.UserName
+		</li>
+		<li>
+			@item.ConnectionId
+		</li>
+	}
+</ul>
+
+@UserManager.GetUserId(User)
+@User.Identity.Name
+<button id="show-all-connections">Show Connections</button>
+<ul id="user-list">
+</ul>
+
+@*@section Scripts{
+	<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+	<script type="text/javascript">
+        $(document).ready(function () {
+        "use strict";
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+		connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+        });
+	</script>
+	}*@
